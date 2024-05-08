@@ -28,8 +28,8 @@ draw_plot <- function(data,name){
     labs(x = "Mean / SD / K_res / EDL", y = "Strain_no", shape = "Variable", title = name, color = "Legend") +
     theme_classic() +
     theme(
-      legend.text = element_text(size = 10),
-      legend.title = element_text(size = 10),
+      # legend.text = element_text(size = 10),
+      # legend.title = element_text(size = 10),
       legend.position = "right",
       panel.grid.major.x = element_blank(),
       axis.text.y = element_text(margin = margin(0, 15, 0, 0),vjust =-1), 
