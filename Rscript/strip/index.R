@@ -99,10 +99,10 @@ get_data <- function(data_path, reference_path) {
 
     # bugs fit
     bugs.fit <- bugs(
-      bugs.directory = "/home/ayoung/.wine/drive_c/Program Files/WinBUGS14",
+      #bugs.directory = "/home/ayoung/.wine/drive_c/Program Files/WinBUGS14",
       model.file = file.path(wbwd, "model.txt"), data = bugs.data, inits = bugs.inits,
       parameters.to.save = c("beta", "b.lab", "sigma", "sigma.lab"),
-      n.chains = 2, n.iter = 5100, n.burnin = 100, n.thin = 10, debug = TRUE, DIC = FALSE,
+      n.chains = 2, n.iter = 5100, n.burnin = 100, n.thin = 10, debug = FALSE, DIC = FALSE,
       working.directory = wbwd
     )
 

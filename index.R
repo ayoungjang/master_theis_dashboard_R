@@ -1,7 +1,5 @@
 library(shiny)
 library(bslib)
-library(shinycssloaders)
-options(shiny.host='0.0.0.0')
 options(shiny.port=3388)
 
 # Define UI
@@ -15,8 +13,14 @@ ui <- page_sidebar(
     uiOutput("type_selector") # For checkbox input to select types
   ),
   mainPanel(
+    tags$style(HTML("
+      .card {
+        height: 500px; 
+      }
+    ")),
     uiOutput("plot_cards") 
   )
+
 )
 
 # Define server logic
