@@ -9,7 +9,7 @@ draw_plot <- function(selected_data, type) {
   
   df <- data.frame(
    Strain_no = data$Strain_no,
-   Species =  as.numeric(data$Species),
+   Species =  data$Species,
     mode.log.MIC = as.numeric(data$mode.log.MIC),
     E.log.MIC = as.numeric(data$E.log.MIC),
     lower.log.MIC = as.numeric(data$lower.log.MIC),
