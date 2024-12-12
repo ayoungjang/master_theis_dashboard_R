@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
-options(shiny.port=3388)
+library(tictoc)
+options(shiny.port = 3388)
 
 # Define UI
 ui <- page_sidebar(
@@ -15,12 +16,11 @@ ui <- page_sidebar(
   mainPanel(
     tags$style(HTML("
       .card {
-        height: 500px; 
+        height: 500px;
       }
     ")),
-    uiOutput("plot_cards") 
+    uiOutput("plot_cards")
   )
-
 )
 
 # Define server logic
@@ -29,15 +29,51 @@ server <- function(input, output, session) {
 
   observeEvent(input$execute, {
     req(input$data, input$reference)
-
     data_path <- input$data$datapath
     reference_path <- input$reference$datapath
-    test_type <- input$test_type # Capture the selected test type
+    test_type <- input$test_type
 
     tryCatch(
       {
+        # Initialize cumulative execution time
+        cumulative_time <- 0
+
+        # Source the R script dynamically based on test type
         source(paste0("./Rscript/", tolower(test_type), "/index.R"), local = TRUE)
-        result_data(get_data(data_path, reference_path)) # Assuming disk_data function is appropriate for both or is dynamically defined based on source
+        results <- get_data(data_path, reference_path)
+
+        lapply(names(results), function(type) {
+          cat("\n+--------------------+\n")
+          cat("| Processing Type:   |\n")
+          cat("|", sprintf("%-18s", type), "|\n")
+          cat("+--------------------+\n")
+
+          # Time each type
+          start_time <- Sys.time()
+          source(paste0("./Rscript/", tolower(test_type), "/", tolower(test_type), "_plot.R"), local = TRUE)
+          draw_plot(results[[type]], type)
+          end_time <- Sys.time()
+
+          execution_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
+          cumulative_time <<- cumulative_time + execution_time
+
+          # Print execution time for the current type
+          cat("+-------------------+-----------------+\n")
+          cat("| Metric           | Value           |\n")
+          cat("+-------------------+-----------------+\n")
+          cat(sprintf("| %-17s | %-15s |\n", "Execution Time", sprintf("%.2f seconds", execution_time)))
+          cat("+-------------------+-----------------+\n")
+        })
+
+        # Print cumulative execution time after all types are processed
+        cat("+-------------------+-----------------+\n")
+        cat("| Metric           | Value           |\n")
+        cat("+-------------------+-----------------+\n")
+        cat(sprintf("| %-17s | %-15s |\n", "Execution Time", sprintf("%.2f seconds", cumulative_time)))
+        # cat(sprintf("| %-26s |\n", sprintf("%.2f seconds", cumulative_time)))
+        cat("+-------------------+-----------------+\n")
+
+        result_data(results)
 
         output$type_selector <- renderUI({
           checkboxGroupInput("selected_types", "Select Types",
@@ -46,7 +82,7 @@ server <- function(input, output, session) {
         })
       },
       error = function(e) {
-        print(paste("Error in sourcing or function execution:", e$message))
+        cat("Error in sourcing or function execution:", e$message, "\n")
       }
     )
   })
@@ -54,9 +90,8 @@ server <- function(input, output, session) {
   output$plot_cards <- renderUI({
     req(result_data())
     selected_types <- input$selected_types
-    print(selected_types)
     if (is.null(selected_types) || length(selected_types) == 0) {
-      return(HTML("<p>Please select at least one type to display the plots.</p>")) # Message to prompt selection
+      return(HTML("<p>Please select at least one type to display the plots.</p>"))
     }
 
     plot_card_list <- lapply(selected_types, function(type) {
@@ -67,7 +102,7 @@ server <- function(input, output, session) {
       )
     })
 
-    do.call(tagList, plot_card_list) # Combine all cards into a tag list
+    do.call(tagList, plot_card_list)
   })
 
   observe({

@@ -7,18 +7,21 @@ get_data <- function(data_path, reference_path) {
   file <- data_path
   file2 <- reference_path
 
-  Fasit_data <- read.xlsx(xlsxFile=file2)
-  Lre_data <- read.xlsx(xlsxFile=file)
+  Fasit_data <- read.xlsx(xlsxFile = file2)
+  Lre_data <- read.xlsx(xlsxFile = file)
 
   names(Fasit_data) <- unname(Fasit_data[2, ])
-  Fasit_data <- Fasit_data[-1,]
-  Fasit_data <- Fasit_data[-1,]
+  Fasit_data <- Fasit_data[-1, ]
+  Fasit_data <- Fasit_data[-1, ]
   colnames(Fasit_data) <- c("Strain_no", "K_res", "EDL", "LIN_MIC_MTS", "LIN_MIC_Etest", "LIN_MIC_Etest_1")
+
 
   Lre_data$Species <- as.factor(Lre_data$Species)
   Lre_data$Strain_no <- as.factor(Lre_data$Strain_no)
 
-  Disk_data <- Lre_data %>% select(Strain_no, Species, Disk_diff_Linezolid10, Disk_diffusion) %>% na.omit()
+  Disk_data <- Lre_data %>%
+    select(Strain_no, Species, Disk_diff_Linezolid10, Disk_diffusion) %>%
+    na.omit()
 
   disk_types <- unique(Disk_data$Disk_diffusion)
   disk_list <- setNames(vector("list", length(disk_types)), disk_types)
@@ -47,9 +50,10 @@ get_data <- function(data_path, reference_path) {
   }
 
   for (disk_type in disk_types) {
-    disk_list[[disk_type]] <- Disk_data %>% filter(Disk_diffusion == disk_type) %>%
- mutate_at(vars(Disk_diff_Linezolid10), as.numeric) %>% process_data(data, Fasit_data)
-
+    disk_list[[disk_type]] <- Disk_data %>%
+      filter(Disk_diffusion == disk_type) %>%
+      mutate_at(vars(Disk_diff_Linezolid10), as.numeric) %>%
+      process_data(Fasit_data)
   }
 
   return(disk_list)

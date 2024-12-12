@@ -5,13 +5,13 @@ library(statip)
 library(lattice)
 setwd("./disk/plots")
 
-# out <- "./disk/plots"
+out <- "./disk/plots"
 
-# if (file.exists(out)){
-#   setwd(file.path(out))
-# } else {
-#   dir.create(file.path(out))
-#   setwd(file.path(out))
+if (file.exists(out)){
+  setwd(file.path(out))
+} else {
+  dir.create(file.path(out))
+  setwd(file.path(out))
   
 
 
